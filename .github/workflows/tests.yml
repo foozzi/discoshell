@@ -1,0 +1,76 @@
+name: Bats Testing
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git make gcc
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Golang install
+      uses: actions/setup-go@v4
+
+    - name: Install amass
+      run: go install -v github.com/owasp-amass/amass/v3/...@master
+    - name: Install subfinder
+      run: go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+    - name: Install alterx
+      run: go install github.com/projectdiscovery/alterx/cmd/alterx@latest
+    - name: Install puredns
+      run: go install github.com/d3mondev/puredns/v2@latest
+    - name: Install massdns
+      run: |
+        git clone https://github.com/blechschmidt/massdns.git
+        cd massdns
+        make
+        sudo cp bin/massdns /usr/local/bin/
+    - name: Setup Bats and bats libs
+      uses: brokenpip3/setup-bats-libs@1.5.1
+
+    - name: Run Bats Tests on Linux
+      run: bats -t tests
+      shell: bash
+
+  test-macos:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Golang install
+      uses: actions/setup-go@v4
+
+    - name: Install Dependencies
+      run: brew install coreutils
+
+    - name: Install amass
+      run: go install -v github.com/owasp-amass/amass/v3/...@master
+    - name: Install subfinder
+      run: go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+    - name: Install alterx
+      run: go install github.com/projectdiscovery/alterx/cmd/alterx@latest
+    - name: Install puredns
+      run: go install github.com/d3mondev/puredns/v2@latest
+    - name: Install massdns
+      run: brew install massdns
+    - name: Setup Bats and bats libs
+      uses: mig4/setup-bats@v1
+      with:
+        bats-version: 1.10.0
+
+    - name: Run Bats Tests on macOS
+      run: bats -t tests
+      shell: bash
