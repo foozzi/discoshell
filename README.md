@@ -43,6 +43,21 @@ usage: ./discoshell.sh --input string --output string
 
 <hr />
 
+### Requirements
+ * [subfinder](https://github.com/projectdiscovery/subfinder)
+ * [amass](https://github.com/owasp-amass/amass)
+
+**note about amass**: you need to use amass v3.23.3
+```bash
+go install -v github.com/owasp-amass/amass/v3/...@master
+```
+
+ * [puredns](https://github.com/d3mondev/puredns)
+ * [massdns](https://github.com/blechschmidt/massdns)
+ * [alterx](https://github.com/projectdiscovery/alterx)
+
+<hr />
+
 ### Installation
 ```bash
 git clone https://github.com/foozzi/discoshell && cd discoshell
