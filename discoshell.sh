@@ -34,7 +34,7 @@
 # You can also find the source code of this script and collaborate on GitHub:
 # Repository: https://github.com/foozzi/discoshell
 #
-VERSION="0.1.0b"
+VERSION="0.1.1b"
 
 # bash settings
 trap cleanup INT
@@ -45,6 +45,8 @@ if [[ -n "$BATS_ENVIRONMENT" ]]; then  # tests
     discoshell_results="$BATS_TEST_DIR"
 else
     discoshell_results=.discoshell_results
+    # before discovering, make sure that '~/.discoshell_results' is deleted
+    rm -rf "$discoshell_results"
 fi
 subfinder_output=subfinder.txt
 amass_output=amass.txt
@@ -81,6 +83,7 @@ function die() {
     set_text_color 1
     echo "Script failed: $1, exiting..."
     reset_text_format
+    # deleting '~/.discoshell_results' after encountering an error
     rm -rf "$discoshell_results"
     exit 1
 }
@@ -88,6 +91,8 @@ function die() {
 function cleanup() {
     set_text_color 1
     echo "exiting..."
+    # deleting '~/.discoshell_results' upon exiting [^C]
+    rm -rf "$discoshell_results"
     reset_text_format
     exit 0
 }
