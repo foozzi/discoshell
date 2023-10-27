@@ -18,8 +18,6 @@ teardown() {
 @test "Testing single domain with stdout" {
     run ../discoshell.sh -s fz0x1.wtf
 
-    echo "${lines[@]}"
-
     [ "${lines[0]}" = '[1] Starting to gather subdomains.' ]
     [ "${lines[1]}" = '[1.1] subfinder' ]
     [ "${lines[2]}" = '[1.2] amass' ]
