@@ -34,7 +34,7 @@
 # You can also find the source code of this script and collaborate on GitHub:
 # Repository: https://github.com/foozzi/discoshell
 #
-VERSION="0.1.1b"
+VERSION="0.1.3b"
 
 # bash settings
 trap cleanup INT
@@ -42,11 +42,11 @@ shopt -s expand_aliases
 
 # variables
 if [[ -n "$BATS_ENVIRONMENT" ]]; then  # tests
-    discoshell_results="$BATS_TEST_DIR"
+    discoshell_results="$BATS_RESULT_DIR"
 else
-    discoshell_results=.discoshell_results
+    discoshell_results="${HOME:?}/.discoshell_results"
     # before discovering, make sure that '~/.discoshell_results' is deleted
-    rm -rf "$discoshell_results"
+    rm -rf "${discoshell_results:?}"
 fi
 subfinder_output=subfinder.txt
 amass_output=amass.txt
@@ -84,7 +84,7 @@ function die() {
     echo "Script failed: $1, exiting..."
     reset_text_format
     # deleting '~/.discoshell_results' after encountering an error
-    rm -rf "$discoshell_results"
+    rm -rf "${discoshell_results:?}"
     exit 1
 }
 
@@ -92,7 +92,7 @@ function cleanup() {
     set_text_color 1
     echo "exiting..."
     # deleting '~/.discoshell_results' upon exiting [^C]
-    rm -rf "$discoshell_results"
+    rm -rf "${discoshell_results:?}"
     reset_text_format
     exit 0
 }
@@ -230,9 +230,7 @@ if [[ -z "$single" ]]; then
 fi
 
 # creating tmp dir
-cd "$HOME" || exit
 mkdir -p "$discoshell_results" && cd "$discoshell_results" || exit
-tmp_dir=$(pwd)
 
 # removing 'www.site.ru' links
 function rw() {
@@ -355,7 +353,7 @@ set_text_color 4
 echo "[5] Cleaning"
 reset_text_format
 if [[ -z "$BATS_ENVIRONMENT" ]]; then  # tests
-    rm -rf "$tmp_dir"
+    rm -rf "${discoshell_results:?}"
 fi
 
 

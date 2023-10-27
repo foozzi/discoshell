@@ -2,21 +2,23 @@
 
 setup() {
     export BATS_ENVIRONMENT=1
+    export BATS_RESULT_DIR="$HOME/discoshell_test_results"
+
     TESTS_DIR="$( dirname "$BATS_TEST_FILENAME" )"
-    RESULTS_DIR="discoshell_test_results"
-    cd "$HOME" && mkdir -p "$RESULTS_DIR" && cd "$RESULTS_DIR"
-    export BATS_TEST_DIR="$(pwd)"
+    mkdir -p "$HOME/discoshell_test_results" && cd "$HOME/discoshell_test_results"
     echo -e "fz0x1.wtf\nmta-sts.fz0x1.wtf\nwww.fz0x1.wtf" > "subdomains.txt"
-    SUBDOMAINS_LIST=$(realpath "subdomains.txt")
+    SUBDOMAINS_LIST="$(realpath "subdomains.txt")"
     cd "$TESTS_DIR"
 }
 
 teardown() {
-    rm -rf "$BATS_TEST_DIR"
+    rm -rf "${BATS_RESULT_DIR:?}"
 }
 
 @test "Testing single domain with stdout" {
     run ../discoshell.sh -s fz0x1.wtf
+
+    echo "${lines[@]}"
 
     [ "${lines[0]}" = '[1] Starting to gather subdomains.' ]
     [ "${lines[1]}" = '[1.1] subfinder' ]
@@ -48,7 +50,7 @@ teardown() {
 }
 
 @test "Testing single domain with file output" {
-    output_file="$HOME/$RESULTS_DIR/output.txt"
+    output_file="$BATS_RESULT_DIR/output.txt"
     run ../discoshell.sh -s fz0x1.wtf -o "output.txt"
 
     [ "$(sed -n '1p' "$output_file")" = 'fz0x1.wtf' ] || [ "$(sed -n '1p' "$output_file")" = 'www.fz0x1.wtf' ] || [ "$(sed -n '1p' "$output_file")" = 'mta-sts.fz0x1.wtf' ]
@@ -66,7 +68,7 @@ teardown() {
 }
 
 @test "Testing domains list with file output" {
-    output_file="$HOME/$RESULTS_DIR/output.txt"
+    output_file="$BATS_RESULT_DIR/output.txt"
     run ../discoshell.sh -i "$SUBDOMAINS_LIST" -o "output.txt"
 
     [ "$(sed -n '1p' "$output_file")" = 'fz0x1.wtf' ] || [ "$(sed -n '1p' "$output_file")" = 'www.fz0x1.wtf' ] || [ "$(sed -n '1p' "$output_file")" = 'mta-sts.fz0x1.wtf' ]
@@ -116,7 +118,7 @@ teardown() {
 }
 
 @test "Testing single domain with file output and 'remove-www' option" {
-    output_file="$HOME/$RESULTS_DIR/output.txt"
+    output_file="$BATS_RESULT_DIR/output.txt"
     run ../discoshell.sh -s fz0x1.wtf -o "output.txt" -rw
 
     [ "$(sed -n '1p' "$output_file")" = 'fz0x1.wtf' ] || [ "$(sed -n '1p' "$output_file")" = 'mta-sts.fz0x1.wtf' ]
@@ -134,7 +136,7 @@ teardown() {
 }
 
 @test "Testing domains list with file output and 'remove-www' option" {
-    output_file="$HOME/$RESULTS_DIR/output.txt"
+    output_file="$BATS_RESULT_DIR/output.txt"
     run ../discoshell.sh -i "$SUBDOMAINS_LIST" -o "output.txt" -rw
 
     [ "$(sed -n '1p' "$output_file")" = 'fz0x1.wtf' ] || [ "$(sed -n '1p' "$output_file")" = 'mta-sts.fz0x1.wtf' ]
