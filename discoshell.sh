@@ -34,7 +34,7 @@
 # You can also find the source code of this script and collaborate on GitHub:
 # Repository: https://github.com/foozzi/discoshell
 #
-VERSION="0.1.3b"
+VERSION="0.1.5b"
 
 # bash settings
 trap cleanup INT
@@ -53,7 +53,6 @@ amass_output=amass.txt
 alterx_output=generated_subdomains.txt
 all_subdomains=subdomains.txt
 tmp_subdomains=subdomains_tmp.txt
-script_dir="$(pwd)"
 
 set_text_color() {
     if [[ -z "$BATS_ENVIRONMENT" ]]; then  # tests
@@ -212,6 +211,14 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# checking existing output dir
+if [[ -n "$output" ]]; then
+    if [[ ! -d "$(dirname "$output")" ]]; then
+        usage
+        die "Output path is not exists"
+    fi
+fi
+
 
 # checking the arguments
 if [[ -z "$input" ]] && [[ -z "$single" ]]; then
@@ -228,6 +235,7 @@ if [[ -z "$single" ]]; then
     fi
     filename="$(realpath "$input")"
 fi
+
 
 # creating tmp dir
 mkdir -p "$discoshell_results" && cd "$discoshell_results" || exit
@@ -341,11 +349,7 @@ if [[ -z "$output" ]]; then
     puredns_cmd "$all_subdomains"
     reset_text_format
 else
-    if [[ -z "$BATS_ENVIRONMENT" ]]; then # tests
-        puredns_cmd "$all_subdomains" "$script_dir/$output"
-    else
-        puredns_cmd "$all_subdomains" "$output"
-    fi
+    puredns_cmd "$all_subdomains" "$output"
 fi
 
 
